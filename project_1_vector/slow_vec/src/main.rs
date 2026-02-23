@@ -41,8 +41,6 @@ fn slow_vec_basics() {
     println!("---------------------");
     println!("");
 }
-
-
 // Student 1: This part should work if you implement the push function correctly!
 fn slow_vec_push() {
     println!("slow_vec_push--------");
