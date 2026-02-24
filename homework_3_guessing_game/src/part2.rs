@@ -8,24 +8,20 @@ pub struct Part2 {}
 // Terrible strategy: ask if the number is min, otherwise return max.
 impl Strategy for Part2 {
     fn guess_the_number(player: &mut Player, min: u32, max: u32) -> u32 {
-    
+        // YOUR SOLUTION GOES HERE.
+        let mut low = min;
+        let mut high = max;
+        while low < high {
+            let mid = low + (high - low) / 2;
 
-        let mut min1 = min;
-        let mut max1 = max;
-        while min1<max1{
-            let mut mid = (min1 + max1)/2;
-            let val = player.ask_to_compare(mid);
-            match val {
+            match player.ask_to_compare(mid) {
                 0 => return mid,
-                1 => min1 = mid+ 1,
-                -1=> max1 = mid -1,
-                 _ => println!("no")
-
-
+                -1 => high = mid,
+                1 => low = mid + 1,
+                _ => unreachable!("ask_to_compare should only return -1, 0, or 1"),
             }
-            
         }
-        min1
 
-     }
+        low
+    }
 }
