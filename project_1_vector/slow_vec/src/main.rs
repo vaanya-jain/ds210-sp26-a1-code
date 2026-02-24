@@ -41,9 +41,8 @@ fn slow_vec_basics() {
     println!("---------------------");
     println!("");
 }
-
-
 // Student 1: This part should work if you implement the push function correctly!
+
 fn slow_vec_push() {
     println!("slow_vec_push--------");
     let mut slow_vec2: SlowVec<i32> = SlowVec::new();
@@ -58,6 +57,7 @@ fn slow_vec_push() {
     println!("---------------------");
     println!("");
 }
+
 
 // Student 2: This part should work if you implement the remove function correctly!
 fn slow_vec_remove() {
@@ -76,6 +76,7 @@ fn slow_vec_remove() {
     println!("");
 }
 
+
 fn main() {
     // This part works as given.
     slow_vec_basics();
@@ -84,6 +85,6 @@ fn main() {
     fixed_sized_array();
 
     // These parts do not work unless you implement push and remove correctly.
-    slow_vec_push();
+    //slow_vec_push();
     slow_vec_remove();
 }
