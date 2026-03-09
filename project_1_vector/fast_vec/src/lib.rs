@@ -66,16 +66,15 @@ impl<T> FastVec<T> {
 
     // Student 2 should implement this.
     pub fn push(&mut self, t: T) {
-        if self.len == self.capacity {
-            todo!("implement growing the vector by doubling the size!");
-        } else {
-            todo!("implement pushing t directly since the vector still has capacity!");
-        }
-    }
+    todo!("")
+}
+
+
+    
 
     // Student 1 should implement this.
     pub fn remove(&mut self, i: usize) {
-        todo!("implement remove");
+       todo!("")
     }
 
     // This appears correct but with further testing, you will notice it has a bug!
