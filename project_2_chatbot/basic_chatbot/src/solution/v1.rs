@@ -17,8 +17,7 @@ impl ChatbotV1 {
         let mut chat_session: Chat<Llama> = self.model
             .chat()
             .with_system_prompt("The assistant will act like a pirate");
-
-
+        
         let asynchronous_output = chat_session.add_message(message);
         let output = asynchronous_output.await;
         match output {
@@ -28,4 +27,5 @@ impl ChatbotV1 {
 
         //return String::from("Hello, I am not a bot (yet)!");
     }
+}
 }
