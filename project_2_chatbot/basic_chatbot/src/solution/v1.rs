@@ -1,4 +1,5 @@
 use kalosm::language::*;
+use rocket::local::asynchronous;
 
 #[allow(dead_code)]
 pub struct ChatbotV1 {
@@ -16,9 +17,15 @@ impl ChatbotV1 {
         let mut chat_session: Chat<Llama> = self.model
             .chat()
             .with_system_prompt("The assistant will act like a pirate");
-        let output = chat_session.add_message(message).await.unwrap();
-        output.to_string()
 
 
+        let asynchronous_output = chat_session.add_message(message);
+        let output = asynchronous_output.await;
+        match output {
+            Ok(value) => String::from(value),
+            Err(_) => String::from("Sorry, something went wrong.")
+        }
+
+        //return String::from("Hello, I am not a bot (yet)!");
     }
 }
