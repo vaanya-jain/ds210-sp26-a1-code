@@ -1,4 +1,5 @@
 use kalosm::language::*;
+use rocket::local::asynchronous;
 
 #[allow(dead_code)]
 pub struct ChatbotV1 {
@@ -22,6 +23,13 @@ impl ChatbotV1 {
         // consider https://docs.rs/kalosm/0.4.0/kalosm/language/struct.Chat.html#method.add_message
         // Hint: make sure you transform/extract the response message as a **String**.
 
-        return String::from("Hello, I am not a bot (yet)!");
+        let asynchronous_output = chat_session.add_message(message);
+        let output = asynchronous_output.await;
+        match output {
+            Ok(value) => String::from(value),
+            Err(_) => String::from("Sorry, something went wrong.")
+        }
+
+        //return String::from("Hello, I am not a bot (yet)!");
     }
 }
