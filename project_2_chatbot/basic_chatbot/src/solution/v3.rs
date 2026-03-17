@@ -29,7 +29,17 @@ impl ChatbotV3 {
         // Notice, you are given both the `message` and also the `username`.
         // Use this information to select the correct chat session for that user and keep it
         // separated from the sessions of other users.
-        return String::from("Hello, I am not a bot (yet)!");
+        if !self.sessions.contains_key(&username) {
+            let new_chat = self.model.chat();
+            self.sessions.insert(username.clone(), new_chat);
+        }
+
+        let chat = self.sessions.get_mut(&username).unwrap();
+
+        match chat(&message).await {
+            Ok(text) => text,
+            Err(_) => String::from("Error"),
+        }
     }
 
     #[allow(dead_code)]
