@@ -11,9 +11,12 @@ impl ChatbotV3 {
     #[allow(dead_code)]
     pub fn new(model: Llama) -> ChatbotV3 {
         return ChatbotV3 {
-            // Make sure you initialize your struct members here
+            model,
+            chat_sessions: HashMap::new(),
+
         };
     }
+}
 
     #[allow(dead_code)]
     pub async fn chat_with_user(&mut self, username: String, message: String) -> String {
@@ -26,10 +29,17 @@ impl ChatbotV3 {
 
     #[allow(dead_code)]
     pub fn get_history(&self, username: String) -> Vec<String> {
-        // Extract the chat message history for the given username
-        // Hint: think of how you can retrieve the Chat object for that user, when you retrieve it
-        // you may want to use https://docs.rs/kalosm/0.4.0/kalosm/language/struct.Chat.html#method.session
-        // to then retrieve the history!
-        return Vec::new();
+         if let Some(chat) = self.sessions.get(&username) {
+        let history = chat
+            .session()
+            .unwrap()   
+            .history(); 
+
+        history
+            .into_iter()
+            .map(|msg| msg.content().to_string())
+            .collect()
+    } else {
+        Vec::new()
     }
 }
