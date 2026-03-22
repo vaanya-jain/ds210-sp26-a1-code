@@ -51,7 +51,10 @@ impl ChatbotV4 {
                 let mut messages: Vec<String> = Vec::new();
 
                 for msg in history {
-                    messages.push(msg.content.clone());
+                    match msg.role() {
+                        MessageType::SystemPrompt => {}
+                        _ => messages.push(String::from(msg.content())),
+                    }
                 }
 
                 return messages;
