@@ -1,5 +1,5 @@
-use kalosm::language::*;
 use file_chatbot::solution::file_library;
+use kalosm::language::*;
 
 use crate::solution::Cache;
 
@@ -22,15 +22,40 @@ impl ChatbotV5 {
 
         match cached_chat {
             None => {
-                println!("chat_with_user: {username} is not in the cache!");
-                // The cache does not have the chat. What should you do?
-                return String::from("Hello, I am not a bot (yet)!");
+                let mut new_chat: Chat<Llama> = self
+                    .model
+                    .chat()
+                    .with_system_prompt("The assistant will act like a pirate");
+
+                match file_library::load_chat_session_from_file(&filename) {
+                    None => {}
+                    Some(session) => {
+                        new_chat = new_chat.with_session(session);
+                    }
+                }
+
+                let response = match new_chat(&message).await {
+                    Ok(text) => text,
+                    Err(_) => return String::from("Error generating response"),
+                };
+                
+                file_library::save_chat_session_to_file(&filename, &new_chat.session().unwrap());
+
+                self.cache.insert_chat(username, new_chat);
+
+                return response;
             }
             Some(chat_session) => {
                 println!("chat_with_user: {username} is in the cache! Nice!");
-                // The cache has this chat. What should you do?
-                return String::from("Hello, I am not a bot (yet)!");
 
+                let response = match chat_session(&message).await {
+                    Ok(text) => text,
+                    Err(_) => return String::from("Error generating response"),
+                };
+
+                file_library::save_chat_session_to_file(&filename, &chat_session.session().unwrap());
+
+                return response;
             }
         }
     }
@@ -56,7 +81,10 @@ impl ChatbotV5 {
                 if let Some(chat_session) = self.cache.get_chat(&username) {
                     let mut messages: Vec<String> = Vec::new();
                     for msg in chat_session.session().unwrap().history() {
-                        messages.push(String::from(msg.content()));
+                        match msg.role() {
+                            MessageType::SystemPrompt => {}
+                            _ => messages.push(String::from(msg.content())),
+                        }
                     }
 
                     return messages;
@@ -68,7 +96,10 @@ impl ChatbotV5 {
 
                 let mut messages: Vec<String> = Vec::new();
                 for msg in chat_session.session().unwrap().history() {
-                    messages.push(String::from(msg.content()));
+                    match msg.role() {
+                        MessageType::SystemPrompt => {}
+                        _ => messages.push(String::from(msg.content())),
+                    }
                 }
 
                 return messages;
