@@ -1,16 +1,34 @@
-use std::collections::HashMap;
-use crate::dataset::{ColumnType, Dataset, Value, Row};
+use crate::dataset::{ColumnType, Dataset, Row, Value};
 use crate::query::{Aggregation, Condition, Query};
+use std::collections::HashMap;
 
 pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
     todo!("Implement this!");
 }
 
 pub fn group_by_dataset(dataset: Dataset, group_by_column: &String) -> HashMap<Value, Dataset> {
-    todo!("Implement this!");
+    let mut grouped = HashMap::new();
+
+    let columns = dataset.columns().clone();
+    let group_index = dataset.column_index(group_by_column);
+
+    for row in dataset.into_iter() {
+        let group_value = row.get_value(group_index).clone();
+
+        if !grouped.contains_key(&group_value) {
+            grouped.insert(group_value.clone(), Dataset::new(columns.clone()));
+        }
+
+        grouped.get_mut(&group_value).unwrap().add_row(row);
+    }
+
+    return grouped;
 }
 
-pub fn aggregate_dataset(dataset: HashMap<Value, Dataset>, aggregation: &Aggregation) -> HashMap<Value, Value> {
+pub fn aggregate_dataset(
+    dataset: HashMap<Value, Dataset>,
+    aggregation: &Aggregation,
+) -> HashMap<Value, Value> {
     todo!("Implement this!");
 }
 
@@ -24,7 +42,10 @@ pub fn compute_query_on_dataset(dataset: &Dataset, query: &Query) -> Dataset {
     let group_by_column_type = dataset.column_type(group_by_column_name);
     let columns = vec![
         (group_by_column_name.clone(), group_by_column_type.clone()),
-        (query.get_aggregate().get_result_column_name(), ColumnType::Integer),
+        (
+            query.get_aggregate().get_result_column_name(),
+            ColumnType::Integer,
+        ),
     ];
 
     // Create result dataset object and fill it with the results.
