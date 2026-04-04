@@ -1,4 +1,4 @@
-use analytics_lib::{dataset::Dataset, query::Query, solution::compute_query_on_dataset};
+use analytics_lib::{dataset::Dataset, query::{self, Query}, solution::compute_query_on_dataset};
 use interface::RPCInterfaceClient;
 use tarpc::context::Context;
 
@@ -18,7 +18,7 @@ pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Data
     println!("using fast_rpc");
 
     
-   let dataset = rpc_client.fast_rpc(Context::current()).await.unwrap();
-    compute_query_on_dataset(&dataset, &query)
+   let dataset = rpc_client.fast_rpc(Context::current(),query).await.unwrap();
+    return dataset;
 
 }
