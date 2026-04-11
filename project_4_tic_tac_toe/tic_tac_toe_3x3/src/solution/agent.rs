@@ -26,17 +26,36 @@ impl Agent for SolutionAgent {
         };
 
         let mut best_move = (0, 0);
-    }
-    for i in moves {
-    let mut next_board = board.clone();
-    next_board.apply_move(i, player);
-
-    let next_player = match player {
-    Player::X => Player::O,
-    Player::O => Player::X,
+        for i in moves {
+        let mut next_board = board.clone();
+        next_board.apply_move(i, player);
+        let next_player = match player {
+            Player::X => Player::O,
+            Player::O => Player::X,
     };
 
-    let (score, _, _) = SolutionAgent::solve(&mut next_board, next_player, _time_limit);
-    }
+        let (score, _, _) = SolutionAgent::solve(&mut next_board, next_player, _time_limit);
+
+    
+    match player {
+        Player::X => {
+            if score > best_score {
+                best_score = score;
+                best_move = i;
+            }
+}
+       Player::O => {
+        if score < best_score {
+            best_score = score;
+            best_move = i;
+        }
+}
+}
+        }
+    
+
+(best_score, best_move.0, best_move.1)
+}
     
 }
+
