@@ -27,5 +27,16 @@ impl Agent for SolutionAgent {
 
         let mut best_move = (0, 0);
     }
+    for i in moves {
+    let mut next_board = board.clone();
+    next_board.apply_move(i, player);
+
+    let next_player = match player {
+    Player::X => Player::O,
+    Player::O => Player::X,
+    };
+
+    let (score, _, _) = SolutionAgent::solve(&mut next_board, next_player, _time_limit);
+    }
     
 }
