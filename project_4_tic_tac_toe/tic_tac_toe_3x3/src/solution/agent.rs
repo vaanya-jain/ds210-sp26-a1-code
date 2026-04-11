@@ -13,49 +13,49 @@ impl Agent for SolutionAgent {
     // where <score> is your estimate for the score of the game
     // and <x>, <y> are the position of the move your solution will make.
     fn solve(board: &mut Board, player: Player, _time_limit: u64) -> (i32, usize, usize) {
-        // If you want to make a recursive call to this solution, use
-        // `SolutionAgent::solve(...)`
         if board.game_over() {
-            return(board.score(), 0, 0);
+            return (board.score(), 0, 0);
         }
 
         let moves = board.moves();
+
         let mut best_score = match player {
             Player::X => i32::MIN,
             Player::O => i32::MAX,
         };
 
         let mut best_move = (0, 0);
-        for i in moves {
-        let mut next_board = board.clone();
-        next_board.apply_move(i, player);
+
         let next_player = match player {
             Player::X => Player::O,
             Player::O => Player::X,
-    };
+        };
 
-        let (score, _, _) = SolutionAgent::solve(&mut next_board, next_player, _time_limit);
+        for mv in moves {
+            board.apply_move(mv, player);
 
-    
-    match player {
-        Player::X => {
-            if score > best_score {
-                best_score = score;
-                best_move = i;
+            let (score, _, _) = SolutionAgent::solve(board, next_player, _time_limit);
+
+            board.undo_move(mv, player);
+
+            match player {
+                Player::X => {
+                    if score > best_score {
+                        best_score = score;
+                        best_move = mv;
+                    }
+                }
+                Player::O => {
+                    if score < best_score {
+                        best_score = score;
+                        best_move = mv;
+                    }
+                }
             }
-}
-       Player::O => {
-        if score < best_score {
-            best_score = score;
-            best_move = i;
         }
-}
-}
-        }
-    
 
-(best_score, best_move.0, best_move.1)
-}
+        (best_score, best_move.0, best_move.1)
+    }
     
 }
 
