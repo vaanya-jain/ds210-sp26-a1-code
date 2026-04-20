@@ -1,16 +1,77 @@
 use std::i32;
 
 use tic_tac_toe_stencil::agents::Agent;
-use tic_tac_toe_stencil::board::Board;
+use tic_tac_toe_stencil::board::{Board, Cell};
 use tic_tac_toe_stencil::player::Player;
 
-// Your solution.
 pub struct SolutionAgent {}
 
 impl SolutionAgent {
     fn heuristic(board: &Board) -> i32 {
-        // simplest heuristic for incomplete boards
-        board.score()
+        let cells: &Vec<Vec<Cell>> = board.get_cells();
+        let rows: usize = cells.len();
+        let cols: usize = cells[0].len();
+
+        let mut total: i32 = board.score() * 100;
+
+        fn eval_segment(a: &Cell, b: &Cell, c: &Cell) -> i32 {
+            let mut x_count = 0;
+            let mut o_count = 0;
+            let mut empty_count = 0;
+
+            for cell in [a, b, c] {
+                match cell {
+                    Cell::X => x_count += 1,
+                    Cell::O => o_count += 1,
+                    Cell::Empty => empty_count += 1,
+                    Cell::Wall => return 0,
+                }
+            }
+
+            if x_count > 0 && o_count > 0 {
+                return 0;
+            }
+
+            match (x_count, o_count, empty_count) {
+                (3, 0, 0) => 100,
+                (2, 0, 1) => 12,
+                (1, 0, 2) => 2,
+                (0, 3, 0) => -100,
+                (0, 2, 1) => -12,
+                (0, 1, 2) => -2,
+                _ => 0,
+            }
+        }
+
+        // horizontal
+        for r in 0..rows {
+            for c in 0..=(cols - 3) {
+                total += eval_segment(&cells[r][c], &cells[r][c + 1], &cells[r][c + 2]);
+            }
+        }
+
+        // vertical
+        for r in 0..=(rows - 3) {
+            for c in 0..cols {
+                total += eval_segment(&cells[r][c], &cells[r + 1][c], &cells[r + 2][c]);
+            }
+        }
+
+        // diagonal down-right
+        for r in 0..=(rows - 3) {
+            for c in 0..=(cols - 3) {
+                total += eval_segment(&cells[r][c], &cells[r + 1][c + 1], &cells[r + 2][c + 2]);
+            }
+        }
+
+        // diagonal down-left
+        for r in 0..=(rows - 3) {
+            for c in 2..cols {
+                total += eval_segment(&cells[r][c], &cells[r + 1][c - 1], &cells[r + 2][c - 2]);
+            }
+        }
+
+        total
     }
 
     fn other_player(player: Player) -> Player {
@@ -20,13 +81,7 @@ impl SolutionAgent {
         }
     }
 
-    fn minimax(
-        board: &mut Board,
-        player: Player,
-        depth: i32,
-        max_depth: i32,
-    ) -> (i32, usize, usize) {
-        // true terminal state
+    fn minimax(board: &mut Board, player: Player, depth: i32, max_depth: i32, mut alpha: i32, mut beta: i32) -> (i32, usize, usize) {
         if board.game_over() {
             let score = board.score();
 
@@ -39,14 +94,12 @@ impl SolutionAgent {
             }
         }
 
-        // step 2: stop early and use heuristic
         if depth == max_depth {
             return (Self::heuristic(board), 0, 0);
         }
 
         let moves = board.moves();
 
-        // safety check
         if moves.is_empty() {
             return (Self::heuristic(board), 0, 0);
         }
@@ -60,14 +113,21 @@ impl SolutionAgent {
                 for mv in moves {
                     board.apply_move(mv, player);
 
-                    let (score, _, _) =
-                        Self::minimax(board, Self::other_player(player), depth + 1, max_depth);
+                    let (score, _, _) = Self::minimax(board, Self::other_player(player), depth + 1, max_depth, alpha, beta);
 
                     board.undo_move(mv, player);
 
                     if score > best_score {
                         best_score = score;
                         best_move = mv;
+                    }
+
+                    if best_score > alpha {
+                        alpha = best_score;
+                    }
+
+                    if alpha >= beta {
+                        break;
                     }
                 }
 
@@ -79,14 +139,21 @@ impl SolutionAgent {
                 for mv in moves {
                     board.apply_move(mv, player);
 
-                    let (score, _, _) =
-                        Self::minimax(board, Self::other_player(player), depth + 1, max_depth);
+                    let (score, _, _) = Self::minimax(board, Self::other_player(player), depth + 1, max_depth, alpha, beta);
 
                     board.undo_move(mv, player);
 
                     if score < best_score {
                         best_score = score;
                         best_move = mv;
+                    }
+
+                    if best_score < beta {
+                        beta = best_score;
+                    }
+
+                    if alpha >= beta {
+                        break;
                     }
                 }
 
@@ -99,6 +166,6 @@ impl SolutionAgent {
 impl Agent for SolutionAgent {
     fn solve(board: &mut Board, player: Player, _time_limit: u64) -> (i32, usize, usize) {
         let max_depth = 4;
-        Self::minimax(board, player, 0, max_depth)
+        Self::minimax(board, player, 0, max_depth, i32::MIN, i32::MAX)
     }
 }
