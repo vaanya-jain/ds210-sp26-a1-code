@@ -22,19 +22,20 @@ fn main() {
     println!("Number of rows in dataset {}", data.height());
     println!("First row in dataset {:?}", data.get_row(0).unwrap());
 
+    // Filter by album == Ashen.
+    let condition =
+        data.column("album").unwrap().str().unwrap()
+        .equal("Ashen");
+    let filtered_data = data.filter(&condition).unwrap();
 
     // Group by the band and album columns, then compute the average rating per
     // group.
+    // Given the filter, we could even do away with the group by and just compute
+    // the overall mean!
     let groups =
-        data.group_by(["band", "album"]).unwrap();
-    let averages =
+        filtered_data.group_by(["band", "album"]).unwrap();
+    let result =
         groups.select(["rating"]).mean().unwrap();
-
-    // Filter by album == Ashen.
-    let condition =
-        averages.column("album").unwrap().str().unwrap()
-        .equal("Ashen");
-    let result = averages.filter(&condition).unwrap();
 
     // Print result.
     println!("{}", result);

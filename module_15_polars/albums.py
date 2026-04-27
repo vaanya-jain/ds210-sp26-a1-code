@@ -1,5 +1,6 @@
 # this script will generate a CSV with ratings for albums
 import random
+import sys
 
 albums = {
     "Meshuggah": ["Contradictions Collapse", "Destroy Erase Improve", "Chaosphere", "Nothing", "Catch Thirtythree", "ObZen", "Koloss", "The Violent Sleep of Reason", "Immutable"],
@@ -18,7 +19,7 @@ means = {
 
 }
 
-COUNT = 50000000
+COUNT = int(sys.argv[1])
 
 if __name__ == "__main__":
     print("band,album,rating")

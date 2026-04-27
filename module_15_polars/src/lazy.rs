@@ -1,26 +1,35 @@
+use std::env;
 use std::time::Instant;
 use polars::prelude::*;
 
-const FILENAME: &str = "albums50M.csv";
-
 fn main() {
-    let time = Instant::now();
-    // read csv file.
-    let lf = LazyCsvReader::new(FILENAME.into())
+    let timer = Instant::now();
+
+    // Read dataset filename from the command line arguments.
+    let args: Vec<String> = env::args().collect();
+    let filename: &str = &args[1];
+
+    // Configure a lazy read for the csv file: this does not read the data yet!
+    let data = LazyCsvReader::new(filename.into())
         .with_has_header(true)
         .finish().unwrap();
 
-    // Compute average rating per band and album.
-    let query = lf.group_by([col("band"), col("album")])
-        .agg([
-            col("rating").mean().alias("mean"),
-        ])
+    // Write down the query. It does not have to be in optimized form!
+    let output = data
+        .group_by([col("band"), col("album")])
+        .agg([col("rating").mean()])
         .filter(col("album").eq(lit("Ashen")));
 
-    println!("{}", query.explain(false).unwrap());
-    println!("{}", query.explain(true).unwrap());
+    // Print the unoptimized query plan
+    println!("{}", output.explain(false).unwrap());
 
-    let result = query.collect().unwrap();
+    // Print the automatically ***optimized*** query plan
+    println!("{}", output.explain(true).unwrap());
+
+    // Ask polars to run the query (with optimizations).
+    let result = output.collect().unwrap();
+
+    // Print results.
     println!("{}", result);
-    println!("{:?}", time.elapsed());
+    println!("{:?}", timer.elapsed());
 }
