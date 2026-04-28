@@ -12,7 +12,7 @@ impl SolutionAgent {
         let rows: usize = cells.len();
         let cols: usize = cells[0].len();
 
-        let mut total: i32 = 0;
+        let mut total: i32 = board.score() * 100;
 
         fn eval_segment(a: &Cell, b: &Cell, c: &Cell) -> i32 {
             let mut x_count = 0;
