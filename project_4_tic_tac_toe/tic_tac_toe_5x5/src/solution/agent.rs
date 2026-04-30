@@ -158,10 +158,10 @@ impl Agent for SolutionAgent {
 
         let empty = Self::count_empty(board);
         let hard_max_depth = match empty {
-            18..=25 => 3,
-            12..=17 => 4,
-            8..=11  => 5,
-            4..=7   => 6,
+            18..=25 => 4,
+            12..=17 => 5,
+            8..=11  => 6,
+            4..=7   => 7,
             _       => 10,
         };
 
